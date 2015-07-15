@@ -33,7 +33,7 @@ public abstract class DateUtils {
     //
     // Time offsets from UTC
     //
-    // The offset from UTC is appended to the time in the same way that 'Z' was above, in the form ±hh]:[mm], ±[hh][mm], or ±[hh].
+    // The offset from UTC is appended to the time in the same way that 'Z' was above, in the form ±[hh]:[mm], ±[hh][mm], or ±[hh].
     // XML Bind supports only the first one.
 
     public static Calendar parseDateJdk(String value) {
