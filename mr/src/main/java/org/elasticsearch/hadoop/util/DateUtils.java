@@ -33,12 +33,15 @@ public abstract class DateUtils {
     //
     // Time offsets from UTC
     //
-    // The offset from UTC is appended to the time in the same way that 'Z' was above, in the form ±[hh]:[mm], ±[hh][mm], or ±[hh].
+    // The offset from UTC is appended to the time in the same way that 'Z' was above, in the form Â±hh]:[mm], Â±[hh][mm], or Â±[hh].
     // XML Bind supports only the first one.
 
     public static Calendar parseDateJdk(String value) {
         // check for colon in the time offset
         int timeZoneIndex = value.indexOf("T");
+        int dashIndex = value.indexOf("-");
+        int secondDashIndex = value.indexOf("-", dashIndex + 1);
+
         if (timeZoneIndex > 0) {
             int sign = value.indexOf("+", timeZoneIndex);
             if (sign < 0) {
@@ -56,6 +59,19 @@ public abstract class DateUtils {
                 else if (value.charAt(colonIndex) != ':') {
                     value = value.substring(0, colonIndex) + ":" + value.substring(colonIndex);
                 }
+            }
+
+            if (dashIndex > 0 && secondDashIndex == -1) {
+              // We have an ISO 8601 ordinal date time, convert to xsd:dateTime
+              // so that DatetypeConverter can parse it into a Calendar.
+              // There may be a better way to do this, but hey, it's probably faster than SimpleDateFormat.
+
+              Calendar cal = Calendar.getInstance();
+              int year = Integer.parseInt(value.substring(0, dashIndex));
+              int doy = Integer.parseInt(value.substring(dashIndex+1, timeZoneIndex));
+              cal.set(Calendar.YEAR, year);
+              cal.set(Calendar.DAY_OF_YEAR, doy);
+              value = String.format("%1$tY-%1$tm-%1$td", cal) + value.substring(timeZoneIndex);
             }
         }
 
